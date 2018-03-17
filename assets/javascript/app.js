@@ -127,7 +127,9 @@ database.ref("/players").on("value",function(snap){
       database.ref().update({
           turn: turn
       })   
-      
+    if(snap.numChildren()==0){
+        database.ref("/chat").remove();
+    }
     }
     $("#player-one-name").text(snap.child("1/name").val()|| "Waiting for Player 1")
     $("#player-two-name").text(snap.child("2/name").val()|| "Waiting for Player 2")
@@ -207,6 +209,8 @@ var restart = function(){
 }
 
 database.ref("/players").on("child_removed",function(snap){
+    var leaver = snap.val().name+ " has left the game";
+    
     if(snap.key==1){
         wins1=0
         losses1=0
@@ -219,9 +223,21 @@ database.ref("/players").on("child_removed",function(snap){
         $("#player-two-options").empty()
         $("#player-two-record").text("Wins: 0  Losses: 0")
     }
+    database.ref("/chat").push({
+        message: leaver
+    })
 })
-
-
+$(document).on("click","#confirm-message",function(){
+    var message = $("#message").val()
+    $("#message").val("")
+    database.ref("/chat").push({
+        message: message
+    })
+})
+database.ref("/chat").on("child_added",function(snap){
+    console.log(snap.val().message)
+    $("#comms").append("<div>"+snap.val().message+"</div>")
+})
 
 // connectedRef.on("value", function(snap) {
     
