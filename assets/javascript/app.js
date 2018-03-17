@@ -131,8 +131,12 @@ database.ref("/players").on("value",function(snap){
     }
     $("#player-one-name").text(snap.child("1/name").val()|| "Waiting for Player 1")
     $("#player-two-name").text(snap.child("2/name").val()|| "Waiting for Player 2")
-    $("#player-one-record").text("Wins: "+snap.child("2/wins").val()+"  Losses: "+snap.child("2/losses").val()|| "")
-    $("#player-two-record").text("Wins: "+snap.child("2/wins").val()+"  Losses: "+snap.child("2/losses").val()|| "")
+    if(snap.child("1/wins").val()!=null){
+        $("#player-one-record").text("Wins: "+snap.child("1/wins").val()+"  Losses: "+snap.child("1/losses").val()|| "")
+    }
+    if(snap.child("2/wins").val()!=null){
+        $("#player-two-record").text("Wins: "+snap.child("2/wins").val()+"  Losses: "+snap.child("2/losses").val()|| "")
+    }
 })
 database.ref("/players").on("child_added",function(snap){
     var pause = function(){
@@ -181,22 +185,24 @@ database.ref("/players/2/choice").on("value",function(snap){
     console.log("choice: "+snap.val())
     choiceTwo = snap.val()
     if(user==1){
-        $("#player-two-options").text(choiceTwo)
+        $("#player-two-options").html("<h1>"+choiceTwo+"</h1>")
     }
     else if(user==2){
-        $("#player-one-options").text(choiceOne)
+        $("#player-one-options").html("<h1>"+choiceOne+"</h1>")
     }
     declareResults(choiceOne,choiceTwo);
     setTimeout(restart,3000)
 })
 
 var restart = function(){
-    
-        if(user==1){
-            $("#player-one-options").empty().append(createButtons(1))
-        
-
-
+    $("#battle-area").empty();
+    if(user==1){
+        $("#player-one-options").empty().append(createButtons(1))
+        $("#player-two-options").empty()
+    }
+    if(user==2){
+        $("#player-one-options").empty().text("Player 1 is choosing")
+        $("#player-two-options").empty()
     }
 }
 
@@ -205,11 +211,13 @@ database.ref("/players").on("child_removed",function(snap){
         wins1=0
         losses1=0
         $("#player-one-options").empty()
+        $("#player-one-record").text("Wins: 0  Losses: 0")
     }
     else if(snap.key==2){
         wins2=0
         losses2=0
         $("#player-two-options").empty()
+        $("#player-two-record").text("Wins: 0  Losses: 0")
     }
 })
 
